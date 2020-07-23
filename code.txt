@@ -1,0 +1,106 @@
+          let INDEX = this._GETINDEX(IMG, x+j, y+i);
+          if(((j+x) < 0 || (i+y) < 0)  && VISITED.VISITED[INDEX])
+          {
+            ARRAY.EDGE_PIXEL.push(x, y);
+            ARRAY.EDGE_PIXEL2.push(this._GETINDEX(IMG, x, y));
+            continue;
+          }
+
+          if(Math.abs(this._GETPIX(IMG, x + j, y + i, 0) - AVG) < 20)
+          {
+            if(!VISITED.VISITED[INDEX] && !VISITED.UN_VISITED[INDEX])
+            {
+              VISITED.VISITED[INDEX] = true;
+              ARRAY.MATCHED.push(x+j, y+i);  
+            }
+          }
+          else
+          {
+            if(!VISITED.UN_VISITED[INDEX] && !VISITED.VISITED[INDEX])
+            {
+              VISITED.UN_VISITED[INDEX] = true;
+              ARRAY.UN_MATCHED.push(x+j, y+i );
+            }
+            if(VISITED.UN_VISITED[INDEX] && !TICK_EDGE)
+            {
+              let EDGE_INDEX = this._GETINDEX(IMG, x, y);
+              ARRAY.EDGE_PIXEL.push(x, y);
+              ARRAY.EDGE_PIXEL2.push(this._GETINDEX(IMG, x, y));
+              VISITED.EDGE_PIXEL[EDGE_INDEX] = true;
+              TICK_EDGE = true;
+            }
+          }
+
+
+
+ for(let Y=-1; Y<2; Y++)
+      {
+        for(let X=-1; X<2; X++)
+        {
+          let P =
+          {
+            X: X + CENTER.X,
+            Y: Y + CENTER.Y,
+            INDEX: this._GETINDEX(IMG, X + CENTER.X, Y + CENTER.Y)
+          }
+          // CORNER PIXEL
+          if(P.X < 0 || P.Y < 0)
+          {
+            if(!ARRAY.EDGE_PIXEL.includes(CENTER.INDEX))
+              ARRAY.EDGE_PIXEL.push(CENTER.INDEX);
+            continue;
+          }
+          let INTENSITY = this._GETPIX(IMG, P.X, P.Y, 0);
+
+          if(Math.abs(INTENSITY - AVG) < 20)
+          {
+            if(!ARRAY.EDGE_PIXEL.includes(P.INDEX))
+              if(!ARRAY.VISITED.includes(P.INDEX))
+              {
+                ARRAY.SIMILAR.push(P.INDEX);
+              }
+          }
+          else
+          {
+            ARRAY.OTHER.push(P.INDEX);
+          }
+          if(ARRAY.OTHER.includes(P.INDEX))
+            ARRAY.EDGE_PIXEL.push(CENTER.INDEX);
+          
+          // REMOVE DUPLICATES....
+          ARRAY.SIMILAR = [... new Set(ARRAY.SIMILAR)];
+          ARRAY.EDGE_PIXEL = [... new Set(ARRAY.EDGE_PIXEL)];
+          ARRAY.VISITED = [... new Set(ARRAY.VISITED)];
+          
+          // console.log(INTENSITY, P, CENTER);
+        }
+      }
+
+
+            let NEIGHBORS = this._GET_NEIGHBOURS(IMG, CURRENT, OBJECT);
+
+      for(let i=0; i<NEIGHBORS.length; i++)
+      {
+        let INTENSITY = this._GET_PIX(IMG, NEIGHBORS[i]);
+        let COORDS = this._GET_COORDINATES(IMG, NEIGHBORS[i]);
+        console.log(INTENSITY, COORDS, 'INTENSITY');
+
+        if(COORDS.X < 1 || COORDS.Y < 1)
+        {
+          if(Math.abs(INTENSITY - AVG) < 20)
+            OBJECT.EDGE_PIXEL.push(NEIGHBORS[i]);
+        }
+        else if(Math.abs(INTENSITY - AVG) > 20)
+        {
+          OBJECT.OTHER.push(NEIGHBORS[i]);
+          OBJECT.EDGE_PIXEL.push(CURRENT.INDEX);
+        }
+        else
+          OBJECT.SIMILAR.push(NEIGHBORS[i]);
+
+
+        OBJECT.EDGE_PIXEL = [... new Set(OBJECT.EDGE_PIXEL)];
+        OBJECT.SIMILAR = [... new Set(OBJECT.SIMILAR)];
+        OBJECT.OTHER = [... new Set(OBJECT.OTHER)];
+        
+      }
